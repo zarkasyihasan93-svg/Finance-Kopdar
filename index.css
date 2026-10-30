@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Disable pull-to-refresh and rubber-band bounce overscroll */
+html,
+body {
+  overscroll-behavior-y: none !important;
+  overscroll-behavior-x: none !important;
+  overscroll-behavior: none !important;
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.dark,
+html.dark body {
+  background-color: #020617 !important;
+}
+
+#root {
+  min-height: 100%;
+  overflow: visible;
+  overscroll-behavior-y: none !important;
+}
+
+/* Keep desktop content scrollable without showing a visual scrollbar. */
+.app-scroll-area {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app-scroll-area::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* On desktop only the right content panel scrolls. Prevent the document from
+   creating a second, visible scrollbar beside it. */
+@media screen and (min-width: 768px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden !important;
+  }
+}
+
+/* Prevent iOS Safari and mobile browsers from auto-zooming when focusing inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

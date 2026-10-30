@@ -1,0 +1,6 @@
+{
+  "name": "Personal Finance & Productivity App",
+  "description": "A modern personal finance and productivity web app with Supabase PostgreSQL and Email/Password authentication.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
