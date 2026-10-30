@@ -1,1 +1,1 @@
-export { default } from '../../vercelExpressHandler.js';
+export { default } from '../../vercelExpressHandler.ts';

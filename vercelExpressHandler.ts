@@ -4,7 +4,7 @@ let appPromise: Promise<any> | undefined;
 
 export default async function vercelExpressHandler(request: any, response: any) {
   try {
-    appPromise ??= import('./backendApp.js').then((module) => module.default);
+    appPromise ??= import('./backendApp.ts').then((module) => module.default);
     const app = await appPromise;
     return app(request, response);
   } catch (error: any) {

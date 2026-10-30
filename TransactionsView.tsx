@@ -9,6 +9,7 @@ import { ConfirmModal } from './ConfirmModal';
 interface TransactionsViewProps {
   transactions: Transaction[];
   categories: CategoryItem[];
+  userId?: string;
   onAddTransaction: (tx: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) => void;
   onEditTransaction: (tx: Transaction) => void;
   onDeleteTransaction: (id: string) => void;
@@ -35,6 +36,7 @@ const toDateTimeLocalValue = (dStr: string) => {
 export const TransactionsView: React.FC<TransactionsViewProps> = ({
   transactions,
   categories,
+  userId,
   onAddTransaction,
   onEditTransaction,
   onDeleteTransaction,
@@ -86,20 +88,18 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       setFormError('Nominal transaksi harus lebih besar dari 0.');
       return;
     }
-    if (!formCategory) {
-      setFormError('Silakan pilih kategori.');
-      return;
-    }
     if (!formDate) {
       setFormError('Silakan pilih tanggal dan waktu transaksi.');
       return;
     }
 
+    const defaultCategory = formCategory || (formType === 'income' ? 'Pemasukan' : 'Pengeluaran');
+
     onAddTransaction({
-      user_id: 'default_user',
+      user_id: userId,
       type: formType,
       amount: Number(formAmount),
-      category: formCategory,
+      category: defaultCategory,
       note: formNote,
       date: formDate,
     });
@@ -115,16 +115,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
       setFormError('Nominal transaksi harus lebih besar dari 0.');
       return;
     }
-    if (!formCategory) {
-      setFormError('Silakan pilih kategori.');
-      return;
-    }
 
     onEditTransaction({
       ...txToEdit,
       type: formType,
       amount: Number(formAmount),
-      category: formCategory,
+      category: txToEdit.category || (formType === 'income' ? 'Pemasukan' : 'Pengeluaran'),
       note: formNote,
       date: formDate,
       updated_at: new Date().toISOString(),
@@ -402,25 +398,6 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             </div>
           </div>
 
-          {/* Kategori Dropdown */}
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Kategori
-            </label>
-            <select
-              value={formCategory}
-              onChange={(e) => setFormCategory(e.target.value)}
-              className="w-full px-4 py-2.5 text-xs font-medium rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              required
-            >
-              <option value="">Pilih Kategori...</option>
-              {filteredCategories.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
 
           {/* Tanggal & Waktu */}
           <div>
@@ -534,24 +511,6 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Kategori
-            </label>
-            <select
-              value={formCategory}
-              onChange={(e) => setFormCategory(e.target.value)}
-              className="w-full px-4 py-2.5 text-xs font-medium rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
-              required
-            >
-              <option value="">Pilih Kategori...</option>
-              {filteredCategories.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">

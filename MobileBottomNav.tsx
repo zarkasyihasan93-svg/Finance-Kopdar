@@ -3,7 +3,7 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   Plus,
-  CheckSquare,
+  PieChart,
   User as UserIcon,
 } from 'lucide-react';
 import { ActiveTab } from './Sidebar';
@@ -21,7 +21,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 px-3 py-2 flex items-center justify-around shadow-xl">
-      {/* 1. Dashboard */}
+      {/* 1. Dashboard / Home */}
       <button
         onClick={() => setActiveTab('dashboard')}
         className={`flex flex-col items-center gap-1 p-1.5 transition-all duration-200 active:scale-90 ${
@@ -47,26 +47,26 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <span className="text-[10px] font-medium leading-none">Transaksi</span>
       </button>
 
-      {/* 3. Center Floating Action Button */}
+      {/* 3. Center Floating Action Button (Transaksi Baru) */}
       <button
         onClick={onAddClick}
         className="-mt-5 w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-500/30 hover:scale-110 active:scale-95 transition-all duration-200 border-2 border-white dark:border-slate-900"
-        title="Tambah Transaksi"
+        title="Tambah Transaksi Baru"
       >
         <Plus className="w-6 h-6 text-white transition-transform duration-200" />
       </button>
 
-      {/* 4. Todo */}
+      {/* 4. Laporan Keuangan (menggantikan Todo) */}
       <button
-        onClick={() => setActiveTab('todo')}
+        onClick={() => setActiveTab('reports')}
         className={`flex flex-col items-center gap-1 p-1.5 transition-all duration-200 active:scale-90 ${
-          activeTab === 'todo'
+          activeTab === 'reports'
             ? 'text-purple-600 dark:text-purple-400 font-bold scale-105'
             : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
         }`}
       >
-        <CheckSquare className="w-5 h-5 transition-transform duration-200" />
-        <span className="text-[10px] font-medium leading-none">Todo</span>
+        <PieChart className="w-5 h-5 transition-transform duration-200" />
+        <span className="text-[10px] font-medium leading-none">Laporan</span>
       </button>
 
       {/* 5. Profile */}

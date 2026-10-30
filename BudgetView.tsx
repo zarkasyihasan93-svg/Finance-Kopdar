@@ -10,6 +10,7 @@ interface BudgetViewProps {
   budgets: BudgetItem[];
   categories: CategoryItem[];
   transactions: Transaction[];
+  userId?: string;
   onSaveBudget: (budget: Omit<BudgetItem, 'id' | 'created_at'>) => void;
   onDeleteBudget: (id: string) => void;
   onAddCategory: (category: Omit<CategoryItem, 'id' | 'created_at'>) => void;
@@ -19,6 +20,7 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
   budgets,
   categories,
   transactions,
+  userId,
   onSaveBudget,
   onDeleteBudget,
   onAddCategory,
@@ -57,7 +59,7 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
     if (!selectedCategory || !budgetAmount || Number(budgetAmount) <= 0) return;
 
     onSaveBudget({
-      user_id: 'default_user',
+      user_id: userId || '',
       category: selectedCategory,
       amount: Number(budgetAmount),
       month: currentMonthStr,
@@ -73,7 +75,7 @@ export const BudgetView: React.FC<BudgetViewProps> = ({
     if (!newCatName.trim()) return;
 
     onAddCategory({
-      user_id: 'default_user',
+      user_id: userId || '',
       type: newCatType,
       name: newCatName.trim(),
     });

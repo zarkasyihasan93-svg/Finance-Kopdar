@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { sendTelegramMessage } from './telegram.js';
+import { sendTelegramMessage } from './telegram.ts';
 
 export interface ServerTransaction {
   id: string;

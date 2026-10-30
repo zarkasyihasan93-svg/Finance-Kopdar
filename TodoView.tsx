@@ -200,7 +200,7 @@ export const TodoView: React.FC<TodoViewProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           todo: payloadTodo,
-          userId: userId || 'default_user',
+          userId: userId || undefined,
         }),
       });
 
@@ -244,7 +244,7 @@ export const TodoView: React.FC<TodoViewProps> = ({
     if (!title.trim()) return;
 
     onAddTodo({
-      user_id: userId || 'default_user',
+      user_id: userId || '',
       title: title.trim(),
       description: description.trim(),
       priority,

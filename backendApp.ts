@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
@@ -10,14 +10,14 @@ import {
   sendTelegramMessageDetailed,
   sendTransactionNotification,
   sendTelegramDocument,
-} from './telegram.js';
+} from './telegram.ts';
 import {
   initTodoReminderScheduler,
   setServerTodos,
   addOrUpdateServerTodo,
   removeServerTodo,
   setChatIdResolver,
-} from './todoReminder.js';
+} from './todoReminder.ts';
 import {
   initDailyReportScheduler,
   setServerTransactions,
@@ -26,16 +26,18 @@ import {
   updateServerTransaction,
   deleteServerTransaction,
   calculateTotalBalance,
-} from './dailyReport.js';
-import { initMonthlyReportScheduler } from './monthlyReport.js';
+} from './dailyReport.ts';
+import { initMonthlyReportScheduler } from './monthlyReport.ts';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : '';
 const currentDirPath = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
 const app = express();
 // Production platforms (Cloud Run, Render, Railway, etc.) assign the port at
-// runtime. Keep 3000 only as the local-development fallback.
-const PORT = Number(process.env.PORT) || 3000;
+// runtime. Also read --port arg if passed by supervisor.
+const portArgIndex = process.argv.indexOf('--port');
+const portFromArg = portArgIndex !== -1 ? Number(process.argv[portArgIndex + 1]) : undefined;
+const PORT = Number(process.env.PORT) || portFromArg || 3000;
 
 // CORS headers for all incoming requests (supports iframe and custom origins)
 app.use((_req: Request, res: Response, next) => {

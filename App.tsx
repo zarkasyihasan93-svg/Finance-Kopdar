@@ -14,12 +14,6 @@ import { ProfileView } from './ProfileView';
 import { AuthModal, AuthMode } from './AuthModal';
 
 import { AppUser, Transaction, CategoryItem, BudgetItem, TodoItem } from './types';
-import {
-  INITIAL_TRANSACTIONS,
-  INITIAL_CATEGORIES,
-  INITIAL_BUDGETS,
-  INITIAL_TODOS,
-} from './initialData';
 
 import { initAuth, logout } from './auth';
 import {
@@ -59,14 +53,15 @@ export default function App() {
 
   // User & Auth State
   const [user, setUser] = useState<AppUser | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [isDbConnected, setIsDbConnected] = useState<boolean>(false);
 
-  // App Data
-  const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
-  const [categories, setCategories] = useState<CategoryItem[]>(INITIAL_CATEGORIES);
-  const [budgets, setBudgets] = useState<BudgetItem[]>(INITIAL_BUDGETS);
-  const [todos, setTodos] = useState<TodoItem[]>(INITIAL_TODOS);
+  // App Data (Bersih tanpa akun dummy dan data dummy)
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [budgets, setBudgets] = useState<BudgetItem[]>([]);
+  const [todos, setTodos] = useState<TodoItem[]>([]);
 
   // Modal & Navigation control
   const [isAddTxModalOpen, setIsAddTxModalOpen] = useState(false);
@@ -102,7 +97,6 @@ export default function App() {
       ]);
 
       // Pure READ: Directly replace React state with database results.
-      // Absolutely NO INSERT, NO UPDATE, NO UPSERT, NO INITIAL_X FALLBACK!
       setTransactions(userTxs || []);
       setCategories(userCats || []);
       setBudgets(userBgts || []);
@@ -117,7 +111,7 @@ export default function App() {
     }
   }, []);
 
-  // First-time setup: Runs ONLY on login/signup for genuine first-time users, NEVER on refresh
+  // First-time setup: Runs ONLY on login for genuine first-time users (tanpa data dummy)
   const ensureFirstTimeUserSetup = useCallback(async (userId: string) => {
     if (!isSupabaseConfigured() || !userId) return;
 
@@ -127,23 +121,8 @@ export default function App() {
         return;
       }
 
-      console.log('[Init] Genuinely new user detected. Seeding starter data once...');
-
-      for (const cat of INITIAL_CATEGORIES) {
-        await upsertSupabaseCategory({ ...cat, id: generateUUID() }, userId);
-      }
-      for (const tx of INITIAL_TRANSACTIONS) {
-        await upsertSupabaseTransaction({ ...tx, id: generateUUID() }, userId);
-      }
-      for (const bgt of INITIAL_BUDGETS) {
-        await upsertSupabaseBudget({ ...bgt, id: generateUUID() }, userId);
-      }
-      for (const todo of INITIAL_TODOS) {
-        await upsertSupabaseTodo({ ...todo, id: generateUUID() }, userId);
-      }
-
+      console.log('[Init] Genuinely new user detected. No dummy data will be seeded.');
       await markUserAsInitialized(userId);
-      console.log('[Init] Starter data initialization complete.');
     } catch (err) {
       console.error('[Init] Error during first-time user setup:', err);
     }
@@ -182,6 +161,7 @@ export default function App() {
     const unsubscribe = initAuth(
       async (currentUser) => {
         setUser(currentUser);
+        setIsAuthChecking(false);
         if (currentUser) {
           await ensureFirstTimeUserSetup(currentUser.id);
           await refreshUserDataFromSupabase(currentUser.id);
@@ -207,10 +187,10 @@ export default function App() {
     await logout();
     setUser(null);
     setIsDbConnected(false);
-    setTransactions(INITIAL_TRANSACTIONS);
-    setCategories(INITIAL_CATEGORIES);
-    setBudgets(INITIAL_BUDGETS);
-    setTodos(INITIAL_TODOS);
+    setTransactions([]);
+    setCategories([]);
+    setBudgets([]);
+    setTodos([]);
   };
 
   // --- CRUD HANDLERS WITH SUPABASE PERSISTENCE ---
@@ -360,6 +340,47 @@ export default function App() {
     }
   };
 
+  // 1. Loading state during initial authentication check
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Memeriksa status login...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Sebelum login: tidak ada akses ke web sama sekali, hanya tampilkan form login
+  if (!user) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-100/70 dark:bg-slate-950 p-4 transition-colors">
+        <div className="w-full max-w-md flex flex-col items-center mb-4 sm:mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25 mb-3">
+            <span className="text-white font-black text-xl">F</span>
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">FinanceFlow</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Platform Manajemen Keuangan & Produktivitas</p>
+        </div>
+
+        <AuthModal
+          isOpen={true}
+          standalone={true}
+          onClose={() => {}}
+          initialMode={authModalMode}
+          onAuthSuccess={async (authenticatedUser) => {
+            setUser(authenticatedUser);
+            if (authenticatedUser) {
+              await ensureFirstTimeUserSetup(authenticatedUser.id);
+              await refreshUserDataFromSupabase(authenticatedUser.id);
+            }
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col md:flex-row font-sans antialiased overflow-x-hidden overscroll-none">
       {/* Sidebar Navigation */}
@@ -427,6 +448,7 @@ export default function App() {
                 <TransactionsView
                   transactions={transactions}
                   categories={categories}
+                  userId={user?.id}
                   onAddTransaction={handleAddTransaction}
                   onEditTransaction={handleEditTransaction}
                   onDeleteTransaction={handleDeleteTransaction}
@@ -448,6 +470,7 @@ export default function App() {
                   budgets={budgets}
                   categories={categories}
                   transactions={transactions}
+                  userId={user?.id}
                   onSaveBudget={handleSaveBudget}
                   onDeleteBudget={handleDeleteBudget}
                   onAddCategory={handleAddCategory}

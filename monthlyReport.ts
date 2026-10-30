@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { sendTelegramMessage } from './telegram.js';
-import { getServerTransactions } from './dailyReport.js';
+import { sendTelegramMessage } from './telegram.ts';
+import { getServerTransactions } from './dailyReport.ts';
 
 function formatRupiah(num: number): string {
   return 'Rp ' + Math.abs(num).toLocaleString('id-ID');
